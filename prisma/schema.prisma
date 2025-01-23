@@ -1,0 +1,320 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id             Int       @id @default(sequence())
+  name           String
+  bio            String?
+  email          String? // @unique
+  phone          String?
+  photo_url      String?
+  avatar_file_id String?
+  uid            String    @unique
+  created_at     DateTime  @default(now()) @db.Timestamptz(3)
+  last_active_at DateTime? @db.Timestamptz(3)
+  device_info    Json?
+
+  Messages        messages[]
+  Members         members[]
+  Feed            feed[]
+  Documents       documents[]
+  Tokens          tokens[]
+  rooms           rooms[]
+  payments        payments[]
+  files           files[]
+  member_requests member_requests[]
+  room_categories room_categories[]
+  meetings        meetings[]
+  payment_splits  payment_splits[]
+}
+
+model rooms {
+  id                  Int       @id @default(sequence())
+  name                String
+  short_description   String?
+  description         String?   @db.String(3000)
+  avatar              String?
+  avatar_file_id      String?
+  cover_image_url     String?
+  cover_image_file_id String?
+  created_at          DateTime  @default(now()) @db.Timestamptz(3)
+  amount              Int?
+  room_id             String?   @unique
+  is_public           Boolean   @default(true)
+  deleted_at          DateTime?
+  payment_id          Int?
+  is_chat_enabled     Boolean   @default(true)
+  features_available  Json?
+
+  user_id Int
+  user    users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  parent_room_id  Int?
+  members         members[]
+  messages        messages[]
+  feed            feed[]
+  files           files[]
+  member_requests member_requests[]
+  meetings        meetings[]
+  payments        payments[]
+  documents       documents[]
+  payment_splits  payment_splits[]
+}
+
+model members {
+  id               Int      @id @default(sequence())
+  room_id          Int?
+  user_id          Int
+  is_admin         Boolean  @default(false)
+  created_at       DateTime @default(now()) @db.Timestamptz(3)
+  room_category_id Int?
+
+  room          rooms?           @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user          users            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  room_category room_categories? @relation(fields: [room_category_id], references: [id], onDelete: SetNull)
+
+  @@unique([room_id, user_id])
+}
+
+model member_requests {
+  id Int @id @default(sequence())
+
+  room_id    Int?
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  room rooms? @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user users  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([room_id, user_id])
+}
+
+model messages {
+  id         Int      @id @default(sequence())
+  message    String?
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  room_id        Int?
+  feed_id        Int?
+  user_id        Int
+  parent_chat_id Int?
+  room           rooms?      @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user           users       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  feed           feed?       @relation(fields: [feed_id], references: [id], onDelete: Cascade)
+  // documents      documents[]
+  files          files[]
+  documents      documents[]
+}
+
+model feed {
+  id         Int         @id @default(sequence())
+  message    String?
+  created_at DateTime    @default(now()) @db.Timestamptz(3)
+  room_id    Int?
+  user_id    Int
+  payment_id Int?
+  likes      Int         @default(0)
+  comments   Int         @default(0)
+  shares     Int         @default(0)
+  views      Int         @default(0)
+  room       rooms?      @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  author     users       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  payment    payments?   @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+  // documents  documents[]
+  messages   messages[]
+  files      files[]
+  documents  documents[]
+}
+
+// This is the table to save all attchaments from feed, messages, etc
+model documents {
+  id             String        @id
+  created_at     DateTime      @default(now()) @db.Timestamptz(3)
+  file_name      String
+  file_url       String?
+  file_size      Float // saved in MB
+  file_type      FileType
+  file_extension FileExtension
+
+  room_id    Int?
+  room       rooms?    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user_id    Int
+  user       users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  feed_id    Int?
+  feed       feed?     @relation(fields: [feed_id], references: [id], onDelete: Cascade)
+  message_id Int?
+  message    messages? @relation(fields: [message_id], references: [id], onDelete: Cascade)
+}
+
+model tokens {
+  id         Int      @id @default(sequence())
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  token      String
+  user_id    Int
+  user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([token, user_id])
+}
+
+model payments {
+  id                Int      @id @default(sequence())
+  created_at        DateTime @default(now()) @db.Timestamptz(3)
+  name              String
+  description       String?
+  user_id           Int
+  room_id           Int
+  amount            Float
+  is_room_entry_fee Boolean  @default(false)
+
+  user           users            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  room           rooms            @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  payment_splits payment_splits[]
+  feed           feed[]
+}
+
+model payment_splits {
+  id                  Int           @id @default(sequence())
+  created_at          DateTime      @default(now()) @db.Timestamptz(3)
+  paid_at             DateTime?     @db.Timestamptz(3)
+  user_id             Int
+  room_id             Int
+  payment_id          Int
+  amount              Float
+  status              PaymentStatus @default(CREATED)
+  razorpay_order_id   String?
+  razorpay_payment_id String?
+
+  user    users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  room    rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  payment payments @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, payment_id])
+}
+
+// FILES feature
+model files {
+  id                  String        @id
+  created_at          DateTime      @default(now()) @db.Timestamptz(3)
+  file_name           String
+  file_description    String?
+  file_url            String?
+  compressed_file_url String?
+  file_size           Float?
+  file_type           FileType
+  file_extension      FileExtension
+  likes               Int           @default(0)
+
+  room_id Int?
+  room    rooms?    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user_id Int
+  user    users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  chat_id Int?
+  chat    messages? @relation(fields: [chat_id], references: [id], onDelete: Cascade)
+
+  feed_id   Int?
+  feed      feed?   @relation(fields: [feed_id], references: [id], onDelete: Cascade)
+  parent_id String?
+  parent    files?  @relation(fields: [parent_id], references: [id], name: "parent", onDelete: Cascade)
+  files     files[] @relation("parent")
+}
+
+model analytics {
+  id         Int      @id @default(sequence())
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  type    AnalyticsType
+  user_id Int?
+  room_id Int?
+  feed_id Int?
+  file_id String?
+}
+
+model api_logs {
+  id            Int      @id @default(sequence())
+  created_at    DateTime @default(now()) @db.Timestamptz(3)
+  user_id       Int?
+  url           String
+  method        String
+  body          Json?    @db.JsonB
+  start_time    DateTime
+  end_time      DateTime
+  response_time Float
+  status_code   Int
+  request_id    String
+  error         Json?    @db.JsonB
+}
+
+model contact_us {
+  id         Int      @id @default(sequence())
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  name       String
+  email      String
+  message    String
+}
+
+model room_categories {
+  id         Int       @id @default(sequence())
+  created_at DateTime  @default(now()) @db.Timestamptz(3)
+  name       String
+  user_id    Int
+  user       users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  members    members[]
+}
+
+model meetings {
+  id           Int      @id @default(sequence())
+  created_at   DateTime @default(now()) @db.Timestamptz(3)
+  name         String
+  description  String?
+  scheduled_at DateTime
+  room_id      Int
+  hms_room_id  String
+  room         rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user_id      Int
+  user         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+enum RoomType {
+  NORMAL
+  EVENT
+}
+
+enum FileType {
+  DOCUMENT
+  IMAGE
+  FOLDER
+  LINK
+}
+
+enum FileExtension {
+  folder
+  pdf
+  jpeg
+  jpg
+  png
+  docx
+  xlsx
+  link
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum AnalyticsType {
+  FEED_VIEW
+  FEED_LIKE
+  FEED_SHARE
+  FEED_COMMENT
+  ROOM_VIEW
+  FILE_DOWNLOADED
+}
