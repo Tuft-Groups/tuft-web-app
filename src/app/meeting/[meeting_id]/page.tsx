@@ -6,6 +6,8 @@ import { useAppStore } from "@/store";
 import { useEffect, useState } from "react";
 import { HMSPrebuilt } from "@100mslive/roomkit-react";
 
+export const runtime = "edge";
+
 export default function MeetingPage({ params }: { params: { meeting_id: string } }) {
   const [meetingCode, setMeetingCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,5 +30,11 @@ export default function MeetingPage({ params }: { params: { meeting_id: string }
       });
   }, [user, loading]);
 
-  return <>{meetingCode && <HMSPrebuilt roomCode={meetingCode} options={{ userName: user?.name, userId: user?.id.toString() }} />}</>;
+  return (
+    <>
+      {meetingCode && (
+        <HMSPrebuilt roomCode={meetingCode} options={{ userName: user?.name, userId: user?.id.toString() }} />
+      )}
+    </>
+  );
 }
