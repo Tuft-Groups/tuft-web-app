@@ -1,6 +1,18 @@
 import { API_URLS } from "@/constants/api_urls";
 import makeApiCall from "@/lib/api_wrapper";
-import { feed, FileExtension, files, meetings, messages, payment_splits, payments, rooms, users } from "@prisma/client";
+import {
+  feed,
+  FileExtension,
+  files,
+  FileType,
+  meetings,
+  messages,
+  payment_splits,
+  payments,
+  Prisma,
+  rooms,
+  users,
+} from "@prisma/client";
 import axios from "axios";
 import { nanoid } from "nanoid";
 import { create } from "zustand";
@@ -66,6 +78,15 @@ type AppActions = {
   createMeeting: (meeting: Partial<meetings>) => Promise<void>;
   createPayment: (payment: Partial<payments>) => Promise<void>;
   createFolder: (parent_folder_id: string | null, folder_name: string) => Promise<void>;
+  createFiles: (
+    parent_folder_id: string | null,
+    files: Partial<{
+      id: string;
+      file_name: string;
+      file_extension: FileExtension;
+      file_type: FileType;
+    }>[]
+  ) => Promise<void>;
   getUserRoomsData: () => Promise<void>;
   addLikeToFeed: (feed_id: number) => Promise<void>;
   getNewerMessages: () => Promise<boolean>;
@@ -367,6 +388,24 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
       },
     });
     await getRoomFilesData({ parent_folder_id });
+    set({ tab_loading: false });
+  },
+  createFiles: async (parent_folder_id, files) => {
+    const { selectedRoom } = get();
+    set({ tab_loading: true });
+    await makeApiCall({
+      url: API_URLS.ROOM_FILES,
+      method: "POST",
+      body: {
+        files: files.map((file) => {
+          return {
+            ...file,
+            room_id: selectedRoom!.id,
+            parent_id: parent_folder_id,
+          } as Prisma.filesUncheckedCreateInput;
+        }),
+      },
+    });
     set({ tab_loading: false });
   },
 

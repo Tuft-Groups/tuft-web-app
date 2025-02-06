@@ -69,10 +69,10 @@ export default function FeedTab() {
 
   return (
     <div className="flex flex-col max-w-[600px] mx-auto w-full h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-medium">Feed</h2>
+      <div className="flex gap-4 justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Feed</h1>
         {selectedRoom!.is_admin && (
-          <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+          <Button size={"sm"} onClick={() => setIsDialogOpen(true)}>
             Post
           </Button>
         )}
@@ -80,7 +80,11 @@ export default function FeedTab() {
       {feed.length === 0 && !tab_loading ? (
         <EmptyState message="No posts yet" />
       ) : (
-        <InfiniteScroll loading={tab_loading} hasMore={!reached_end} onLoadMore={() => getRoomFeedData({ reset: false })}>
+        <InfiniteScroll
+          loading={tab_loading}
+          hasMore={!reached_end}
+          onLoadMore={() => getRoomFeedData({ reset: false })}
+        >
           <div className="space-y-4">
             {feed.map((item) => (
               <Card className="p-4" key={item.id}>
@@ -103,8 +107,15 @@ export default function FeedTab() {
                       )
                   )}
                 <div className="flex items-center gap-8 mt-4">
-                  <button onClick={() => useAppStore.getState().addLikeToFeed(item.id)} className={`flex items-center gap-1 text-sm ${item.user_liked ? "text-blue-500" : "text-gray-500"}`}>
-                    {item.user_liked ? <SolidHandThumbUpIcon className="w-4 h-4" /> : <HandThumbUpIcon className="w-4 h-4" />}
+                  <button
+                    onClick={() => useAppStore.getState().addLikeToFeed(item.id)}
+                    className={`flex items-center gap-1 text-sm ${item.user_liked ? "text-blue-500" : "text-gray-500"}`}
+                  >
+                    {item.user_liked ? (
+                      <SolidHandThumbUpIcon className="w-4 h-4" />
+                    ) : (
+                      <HandThumbUpIcon className="w-4 h-4" />
+                    )}
                     {item.likes}
                   </button>
                   <button className="flex items-center gap-1 text-sm text-gray-500">
@@ -119,7 +130,9 @@ export default function FeedTab() {
               </Card>
             ))}
 
-            {reached_end && feed.length > 0 && <p className="text-center text-sm text-gray-500 my-4">No more posts to load</p>}
+            {reached_end && feed.length > 0 && (
+              <p className="text-center text-sm text-gray-500 my-4">No more posts to load</p>
+            )}
           </div>
         </InfiniteScroll>
       )}
@@ -132,7 +145,12 @@ export default function FeedTab() {
             {currentPost && (
               <>
                 <div className="relative w-full flex-1 flex items-center justify-center">
-                  <Button variant="ghost" size="icon" className="absolute left-2 text-white hover:bg-white/20" onClick={() => navigateImage("prev")}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-2 text-white hover:bg-white/20"
+                    onClick={() => navigateImage("prev")}
+                  >
                     <ChevronLeft className="h-6 w-6" />
                   </Button>
 
@@ -142,7 +160,12 @@ export default function FeedTab() {
                     className="max-h-[calc(95vh-100px)] max-w-[95vw] object-contain"
                   />
 
-                  <Button variant="ghost" size="icon" className="absolute right-2 text-white hover:bg-white/20" onClick={() => navigateImage("next")}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 text-white hover:bg-white/20"
+                    onClick={() => navigateImage("next")}
+                  >
                     <ChevronRight className="h-6 w-6" />
                   </Button>
                 </div>
@@ -154,11 +177,17 @@ export default function FeedTab() {
                       <div
                         key={file.id}
                         className={`h-[60px] min-w-[60px] cursor-pointer transition-all duration-200 rounded-md ${
-                          currentImageIndex === index ? "border-2 border-white scale-110" : "border border-gray-600 opacity-70 hover:opacity-100 "
+                          currentImageIndex === index
+                            ? "border-2 border-white scale-110"
+                            : "border border-gray-600 opacity-70 hover:opacity-100 "
                         }`}
                         onClick={() => setCurrentImageIndex(index)}
                       >
-                        <img src={file.compressed_file_url || file.file_url || ""} alt={file.file_name} className="h-full w-full object-cover" />
+                        <img
+                          src={file.compressed_file_url || file.file_url || ""}
+                          alt={file.file_name}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     ))}
                 </div>

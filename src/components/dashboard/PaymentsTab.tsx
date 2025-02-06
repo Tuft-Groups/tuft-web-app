@@ -12,7 +12,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
 
 export default function PaymentsTab() {
-  const { payments, getRoomPaymentsData, tab_loading, reached_end, selectedRoom, getRoomFeedData, user, createPayment } = useAppStore();
+  const {
+    payments,
+    getRoomPaymentsData,
+    tab_loading,
+    reached_end,
+    selectedRoom,
+    getRoomFeedData,
+    user,
+    createPayment,
+  } = useAppStore();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [paymentName, setPaymentName] = useState<string | undefined>(undefined);
@@ -82,7 +91,12 @@ export default function PaymentsTab() {
     // Logic to create a payment (e.g., API call)
     // After creating, fetch the updated payments
     setIsDialogOpen(false); // Close the dialog
-    await createPayment({ name: paymentName, description: paymentDescription, amount: Number(paymentAmount), room_id: selectedRoom!.id });
+    await createPayment({
+      name: paymentName,
+      description: paymentDescription,
+      amount: Number(paymentAmount),
+      room_id: selectedRoom!.id,
+    });
 
     setPaymentName(undefined);
     setPaymentDescription(undefined);
@@ -91,8 +105,8 @@ export default function PaymentsTab() {
 
   return (
     <div className="max-w-[600px] mx-auto w-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-medium">Payments</h2>
+      <div className="flex gap-4 justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Payments</h1>
         {selectedRoom!.is_admin && (
           <Button size="sm" onClick={() => setIsDialogOpen(true)}>
             Create Payment
@@ -107,8 +121,17 @@ export default function PaymentsTab() {
           </DialogHeader>
           <div className="space-y-4">
             <Input placeholder="Payment Name" value={paymentName} onChange={(e) => setPaymentName(e.target.value)} />
-            <Input placeholder="Description" value={paymentDescription} onChange={(e) => setPaymentDescription(e.target.value)} />
-            <Input placeholder="Amount" type="number" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} />
+            <Input
+              placeholder="Description"
+              value={paymentDescription}
+              onChange={(e) => setPaymentDescription(e.target.value)}
+            />
+            <Input
+              placeholder="Amount"
+              type="number"
+              value={paymentAmount}
+              onChange={(e) => setPaymentAmount(e.target.value)}
+            />
           </div>
           <div className="flex justify-end mt-4">
             <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>
@@ -124,7 +147,11 @@ export default function PaymentsTab() {
       {payments.length === 0 && !tab_loading ? (
         <EmptyState message="No payments yet" />
       ) : (
-        <InfiniteScroll loading={tab_loading} hasMore={!reached_end} onLoadMore={() => getRoomPaymentsData({ reset: false })}>
+        <InfiniteScroll
+          loading={tab_loading}
+          hasMore={!reached_end}
+          onLoadMore={() => getRoomPaymentsData({ reset: false })}
+        >
           <div className="space-y-4">
             {payments.map((payment) => (
               <Card className="p-4" key={payment.id}>
@@ -136,7 +163,9 @@ export default function PaymentsTab() {
                       <span className="text-md font-bold text-green-600">₹{payment.amount}</span>
                     </div>
                     <p className="text-sm text-gray-500">{payment.payment.description}</p>
-                    {payment.paid_at && <p className="text-sm text-gray-400">{format(new Date(payment.paid_at), "PPp")}</p>}
+                    {payment.paid_at && (
+                      <p className="text-sm text-gray-400">{format(new Date(payment.paid_at), "PPp")}</p>
+                    )}
                   </div>
                   {!payment.paid_at && (
                     <Button variant="secondary" onClick={() => onPayBtnClicked(payment)}>

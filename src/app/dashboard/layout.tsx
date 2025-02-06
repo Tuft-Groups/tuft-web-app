@@ -1,14 +1,6 @@
 "use client";
 
 import { LoginForm } from "@/components/login-form";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Card } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import Loader from "@/components/ui/loader";
 import FirebaseAuth from "@/lib/firebaseAuthClass";
 import { useAppStore } from "@/store";
@@ -46,7 +38,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="flex flex-col h-screen w-screen">
-      {user && (
+      {/* {user && (
         <header className="w-full bg-white dark:bg-gray-800 shadow-sm shrink-0">
           <div className="p-2 flex items-center justify-between">
             <img src="/logo_with_border.png" alt="Tuft" className="h-8" />
@@ -82,7 +74,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
         </header>
-      )}
+      )} */}
 
       <div className="grow h-full overflow-y-scroll">
         {user ? (

@@ -17,8 +17,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
   const [isPhoneAuth, setIsPhoneAuth] = useState(true);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const firebaseAuth = useMemo(() => new FirebaseAuth(), []);
@@ -110,12 +109,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                   disabled={loading}
                   className="mt-4 w-full"
                   onClick={async () => {
-                    setLoading(true);
                     if (isOtpSent) await verifyOtp(code);
                     else await sendOtp(phoneNumber);
-
-                    setIsOtpSent(true);
-                    setLoading(false);
                   }}
                 >
                   {loading ? "Loading..." : "Continue"}

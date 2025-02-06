@@ -42,3 +42,10 @@ export function getFileData(file: File): FileData {
     fileType,
   };
 }
+
+export function formatNumber(number: number | undefined) {
+  if (!number) return "-";
+  return number.toLocaleString("en-US", {
+    maximumFractionDigits: 2,
+  });
+}

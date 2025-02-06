@@ -1,13 +1,12 @@
 import { useAppStore } from "@/store";
+import { ChevronRight, FileIcon, FilePlus, FileText, Folder, FolderIcon, FolderPlus, Home } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CreateFolderDialog } from "../dialogs/create-folder-dialog";
 import { EmptyState } from "../shared/EmptyState";
 import { InfiniteScroll } from "../shared/InfiniteScroll";
-import { Card } from "../ui/card";
 import { Button } from "../ui/button";
-import { ChevronRight, Folder, Home, FileIcon, FolderIcon, FolderPlus, FilePlus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { CreateFolderDialog } from "../dialogs/create-folder-dialog";
+import { Card } from "../ui/card";
+import UploadFileDialog from "../dialogs/upload-file-dialog";
 
 // Define types for folder navigation
 interface FolderBreadcrumb {
@@ -27,7 +26,8 @@ export default function FilesTab() {
 
   // Local state to track folder navigation
   const [folderPath, setFolderPath] = useState<FolderBreadcrumb[]>([{ id: null, name: "Home" }]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateFolderDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploadFileDialogOpen, setIsUploadFileDialogOpen] = useState(false);
 
   useEffect(() => {
     getRoomFilesData({ reset: true, parent_folder_id: null });
@@ -76,7 +76,12 @@ export default function FilesTab() {
             <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handleNewFolderClick}>
               <FolderPlus className="h-4 w-4" /> New Folder
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={() => setIsUploadFileDialogOpen(true)}
+            >
               <FilePlus className="h-4 w-4" /> Upload Document
             </Button>
           </div>
@@ -85,13 +90,23 @@ export default function FilesTab() {
 
       {/* Replace the old dialog code with the new component */}
       <CreateFolderDialog
-        open={isDialogOpen}
+        open={isCreateFolderDialogOpen}
         onOpenChange={setIsDialogOpen}
         onCreateFolder={async (folderName) => {
           await createFolder(folderPath[folderPath.length - 1].id, folderName);
           setIsDialogOpen(false);
           getRoomFilesData({ reset: true, parent_folder_id: folderPath[folderPath.length - 1].id });
         }}
+      />
+
+      <UploadFileDialog
+        open={isUploadFileDialogOpen}
+        onOpenChange={setIsUploadFileDialogOpen}
+        onUploadFiles={async (files) => {
+          const currentFolderId = folderPath[folderPath.length - 1].id;
+          getRoomFilesData({ reset: true, parent_folder_id: currentFolderId });
+        }}
+        parentId={folderPath[folderPath.length - 1].id}
       />
 
       {files.length === 0 && !tab_loading ? (
@@ -118,12 +133,19 @@ export default function FilesTab() {
                   }
                 }}
               >
-                {item.file_type === "FOLDER" && <FolderIcon className="h-6 w-6" />}
-                {item.file_type === "DOCUMENT" && <FileIcon className="h-6 w-6" />}
+                {item.file_type === "FOLDER" && <FolderIcon className="size-8" />}
+                {item.file_type === "DOCUMENT" && <FileText className="size-8 text-red-500" />}
                 {item.file_type === "IMAGE" && item.compressed_file_url && (
-                  <img src={item.compressed_file_url!} alt={item.file_name} className="w-full h-full object-cover" />
+                  <img
+                    src={item.compressed_file_url!}
+                    alt={item.file_name}
+                    className="size-8 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = item.file_url!;
+                    }}
+                  />
                 )}
-                <p className="text-sm mt-2 line-clamp-2">{item.file_name}</p>
+                <p className="text-md mt-2 line-clamp-1 break-words">{item.file_name}</p>
               </Card>
             ))}
           </div>

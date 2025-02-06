@@ -14,7 +14,7 @@ export default function MembersTab() {
 
   return (
     <div className="flex flex-col max-w-[400px] mx-auto w-full h-full">
-      <h2 className="text-xl font-medium mb-2">Members</h2>
+      <h1 className="text-xl font-medium mb-2">Members</h1>
 
       {members.length === 0 && !tab_loading ? (
         <EmptyState message="No members joined yet" />
