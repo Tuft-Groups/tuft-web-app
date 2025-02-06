@@ -15,7 +15,11 @@ export default function RoomData() {
   const [tab, setTab] = useState("");
 
   useEffect(() => {
-    const tab = window.location.pathname.split("/").pop() || "feed";
+    const urlTab = window.location.pathname.split("/")[4] || "feed";
+    const searchParamsTab = searchParams.get("tab") || "feed";
+    const tab = urlTab || searchParamsTab;
+    console.log({ urlTab, searchParamsTab, tab });
+    window.history.replaceState({}, "", window.location.pathname.replace(tab, "feed"));
     setTab(tab);
   }, [searchParams]);
 
