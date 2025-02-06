@@ -31,7 +31,7 @@ export default function AnalyticsTab() {
     if (!dateRange?.from || !dateRange?.to) return;
     if (dateRange.from > dateRange.to) return;
 
-    if (!selectedRoom?.is_admin) return;
+    if (!selectedRoom?.is_admin && !selectedRoom?.is_analytics_public) return;
 
     makeApiCall({
       url: "/analytics",
