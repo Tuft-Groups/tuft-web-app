@@ -52,7 +52,7 @@ export default function RoomData() {
         {tab === "meetings" && <MeetingsTab />}
         {tab === "payments" && <PaymentsTab />}
         {tab === "members" && <MembersTab />}
-        {(selectedRoom?.is_admin || selectedRoom?.is_analytics_public) && <AnalyticsTab />}
+        {(selectedRoom?.is_admin || selectedRoom?.is_analytics_public) && tab === "analytics" && <AnalyticsTab />}
       </div>
     </div>
   );
