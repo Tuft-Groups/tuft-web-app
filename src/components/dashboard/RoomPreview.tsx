@@ -11,7 +11,7 @@ export function RoomPreview() {
   const { show_room_preview, setUserData, selectedRoom } = useAppStore();
 
   const [room, setRoom] = useState<(rooms & { payments: payments[] }) | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   async function getRoom() {
     const room = await makeApiCall({
