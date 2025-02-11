@@ -92,7 +92,7 @@ type AppActions = {
   getNewerMessages: () => Promise<boolean>;
 };
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 export const useAppStore = create<AppState & AppActions>((set, get) => ({
   tab_loading: false,
