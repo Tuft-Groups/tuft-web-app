@@ -8,7 +8,7 @@ export function FormattedMessage({ text }: FormattedMessageProps) {
   const lines = text.split("\n");
 
   return (
-    <span>
+    <span className="text-gray-800 dark:text-gray-400">
       {lines.map((line, lineIndex) => (
         <span key={lineIndex}>
           {line.split(" ").map((word, index) => {

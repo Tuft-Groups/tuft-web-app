@@ -1,12 +1,12 @@
 import { useAppStore } from "@/store";
-import { ChevronRight, FileIcon, FilePlus, FileText, Folder, FolderIcon, FolderPlus, Home } from "lucide-react";
+import { ChevronRight, FilePlus, FileText, Folder, FolderIcon, FolderPlus, Home } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CreateFolderDialog } from "../dialogs/create-folder-dialog";
+import UploadFileDialog from "../dialogs/upload-file-dialog";
 import { EmptyState } from "../shared/EmptyState";
 import { InfiniteScroll } from "../shared/InfiniteScroll";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import UploadFileDialog from "../dialogs/upload-file-dialog";
 
 // Define types for folder navigation
 interface FolderBreadcrumb {
@@ -92,8 +92,8 @@ export default function FilesTab() {
       <CreateFolderDialog
         open={isCreateFolderDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onCreateFolder={async (folderName) => {
-          await createFolder(folderPath[folderPath.length - 1].id, folderName);
+        onCreateFolder={async (folderName, folderDescription) => {
+          await createFolder(folderPath[folderPath.length - 1].id, folderName, folderDescription);
           setIsDialogOpen(false);
           getRoomFilesData({ reset: true, parent_folder_id: folderPath[folderPath.length - 1].id });
         }}
@@ -145,7 +145,9 @@ export default function FilesTab() {
                     }}
                   />
                 )}
-                <p className="text-md mt-2 line-clamp-1 break-words">{item.file_name}</p>
+                <p className="text-sm mt-2 line-clamp-1 break-words" title={item.file_name}>
+                  {item.file_name}
+                </p>
               </Card>
             ))}
           </div>

@@ -6,17 +6,18 @@ import { useState } from "react";
 interface CreateFolderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateFolder: (folderName: string) => Promise<void>;
+  onCreateFolder: (folderName: string, folderDescription: string) => Promise<void>;
 }
 
 export function CreateFolderDialog({ open, onOpenChange, onCreateFolder }: CreateFolderDialogProps) {
   const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderDescription, setNewFolderDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleCreateFolder = async () => {
     if (newFolderName.trim()) {
       setLoading(true);
-      await onCreateFolder(newFolderName.trim());
+      await onCreateFolder(newFolderName.trim(), newFolderDescription.trim());
       setLoading(false);
       setNewFolderName("");
       onOpenChange(false);
@@ -31,7 +32,7 @@ export function CreateFolderDialog({ open, onOpenChange, onCreateFolder }: Creat
         </DialogHeader>
         <Input
           type="text"
-          placeholder="Enter folder name"
+          placeholder="Name"
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
           onKeyDown={(e) => {
@@ -39,6 +40,12 @@ export function CreateFolderDialog({ open, onOpenChange, onCreateFolder }: Creat
               handleCreateFolder();
             }
           }}
+          className="mt-2"
+        />
+        <Input
+          placeholder="Description (optional)"
+          value={newFolderDescription}
+          onChange={(e) => setNewFolderDescription(e.target.value)}
           className="mt-2"
         />
         <DialogFooter>

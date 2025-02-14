@@ -77,7 +77,11 @@ type AppActions = {
   getRoomMeetingsData: (options: { reset?: boolean }) => Promise<void>;
   createMeeting: (meeting: Partial<meetings>) => Promise<void>;
   createPayment: (payment: Partial<payments>) => Promise<void>;
-  createFolder: (parent_folder_id: string | null, folder_name: string) => Promise<void>;
+  createFolder: (
+    parent_folder_id: string | null,
+    folder_name: string,
+    folder_description: string | null
+  ) => Promise<void>;
   createFiles: (
     parent_folder_id: string | null,
     files: Partial<{
@@ -369,7 +373,7 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
     set({ tab_loading: false });
   },
 
-  createFolder: async (parent_folder_id, folder_name) => {
+  createFolder: async (parent_folder_id, folder_name, folder_description) => {
     const { getRoomFilesData, selectedRoom } = get();
     set({ tab_loading: true });
     await makeApiCall({
@@ -383,6 +387,7 @@ export const useAppStore = create<AppState & AppActions>((set, get) => ({
             file_type: "FOLDER",
             room_id: selectedRoom!.id,
             parent_id: parent_folder_id,
+            file_description: folder_description,
           },
         ],
       },
